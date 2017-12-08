@@ -1,0 +1,48 @@
+name:                hs-graphql-wai-elm
+version:             0.1.0.0
+github:              sunwukonga/hs-graphql-wai-elm
+license:             BSD3
+author:              Paul Desmond Parker
+maintainer:          pauldesmondparker@gmail.com
+copyright:           GPLv3
+
+extra-source-files:
+- README.md
+- ChangeLog.md
+
+# Metadata used when publishing your package
+synopsis:            Short description of your package
+# category:            Web
+
+# To avoid duplicated efforts in documentation and dealing with the
+# complications of embedding Haddock markup inside cabal files, it is
+# common to point users to the README.md file.
+description:         Please see the README on Github at <https://github.com/sunwukonga/hs-graphql-wai-elm#readme>
+
+dependencies:
+- base >= 4.7 && < 5
+
+library:
+  source-dirs: src
+
+executables:
+  hs-graphql-wai-elm-exe:
+    main:                Main.hs
+    source-dirs:         app
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - hs-graphql-wai-elm
+
+tests:
+  hs-graphql-wai-elm-test:
+    main:                Spec.hs
+    source-dirs:         test
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - hs-graphql-wai-elm
