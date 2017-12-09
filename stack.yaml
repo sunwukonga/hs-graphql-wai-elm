@@ -18,7 +18,7 @@
 resolver: lts-9.17
 
 docker:
-  enable: true$
+  enable: true
   auto-pull: true
 
 # User packages to be built.
