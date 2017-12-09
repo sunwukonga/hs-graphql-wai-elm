@@ -20,7 +20,7 @@ synopsis:            Short description of your package
 description:         Please see the README on Github at <https://github.com/sunwukonga/hs-graphql-wai-elm#readme>
 
 dependencies:
-- base >= 4.7 && < 5
+  - base >= 4.7 && < 5
 
 library:
   source-dirs: src
@@ -34,7 +34,9 @@ executables:
     - -rtsopts
     - -with-rtsopts=-N
     dependencies:
-    - hs-graphql-wai-elm
+    - wai
+    - http-types
+    - warp
 
 tests:
   hs-graphql-wai-elm-test:
@@ -45,4 +47,4 @@ tests:
     - -rtsopts
     - -with-rtsopts=-N
     dependencies:
-    - hs-graphql-wai-elm
+      - hs-graphql-wai-elm
