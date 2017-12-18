@@ -46,6 +46,8 @@ executables:
       - aeson
       - text
       - bytestring >= 0.10
+      - unordered-containers
+      - aeson
 
 tests:
   hs-graphql-wai-elm-test:
