@@ -16,7 +16,6 @@ import qualified Data.HashMap.Strict as HM (HashMap, empty)
 import Data.Aeson (FromJSON(parseJSON), decode, withObject, (.:), (.:?), (.!=))
 import Data.Aeson.Types (parseMaybe, Value)
 
-
 import Network.Wai
 import Network.HTTP.Types
 import Network.Wai.Handler.Warp (run)
@@ -25,7 +24,7 @@ import GraphQL
 import GraphQL.API (Object, Field, Argument, (:>), Union)
 import GraphQL.Resolver (Handler, (:<>)(..), unionValue)
 
-import GraphQL.Wai (toApplication)
+import GraphQL.Wai (toApplication, toPostApp)
 
 -- From http://graphql.org/learn/serving-over-http/#post-request
 --    Well formed queries sent by POST, _with_ content-type=application/json
@@ -49,12 +48,17 @@ instance FromJSON GraphQLPostRequest where
 -- parseGraphQLPostRequest :: Value -> Parser GrapQLPostRequest
 
 -- Define GraphQL Schema
+type RootQuery = Object "Query" '[] '[Field "query" Hello]
 type Hello = Object "Hello" '[]
   '[ Argument "who" Text :> Field "greeting" Text ]
 
--- Define Handler for Hello Schema
+-- Define Handlers
 hello :: Handler IO Hello
 hello = pure (\who -> pure ("Hello " <> who))
+
+rootHandler :: Handler IO RootQuery
+rootHandler = pure hello 
+
 
 --type Hello {
 --  greeting(who: String!): String!
@@ -73,25 +77,20 @@ hello = pure (\who -> pure ("Hello " <> who))
 app2 :: Application
 app2 request respond = do
   reqBS <- requestBody request
+  print "requestBody: "
   print reqBS
-  let (decoded :: Maybe Data.Aeson.Types.Value) = decode ( L.fromStrict reqBS )
-  print decoded
+--  let (decoded :: Maybe Data.Aeson.Types.Value) = decode ( L.fromStrict reqBS )
+--  print decoded
   let (rootQuery :: Maybe GraphQLPostRequest) = parseMaybe parseJSON =<< decode ( L.fromStrict reqBS )
+  print "rootQuery from requestBody: "
   print rootQuery
---  print reqBS
---  case lookup "Content-Type" (requestHeaders request) of
---    Just ctype   -> print ctype
---    _            -> return ()
---  case getRequestBodyType request of
---    Just UrlEncoded -> print bodytype
---    _              -> print "Nothing"
---  let pathinfo = pathInfo request
---  print pathinfo
-
+  print "queryString: "
+  print (queryString request)
 --     _______________________________________________________________________________________
 --     ( POST                  ,  application/json                               ,  /graphql )
   case ((requestMethod request), (lookup "Content-Type" (requestHeaders request)), (rawPathInfo request)) of
-    ("POST", Just "application/json", "/graphql") -> respond $ responseLBS notImplemented501 [] "STATUS 501: That baby's not ready!"
+--    ("POST", Just "application/json", "/graphql") -> respond $ responseLBS notImplemented501 [] "STATUS 501: That baby's not ready!"
+    ("POST", Just "application/json", "/graphql") -> toPostApp @Hello hello reqBS request respond
     ("GET" , _                      , "/graphql") -> toApplication @Hello hello request respond
     ("GET" , _                      , "/check"  ) -> checkdata <$> requestBody request >>= respond
     ("GET" , _                      , "/"       ) -> respond indexhtml
